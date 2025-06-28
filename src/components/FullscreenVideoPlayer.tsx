@@ -24,9 +24,9 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
   onClose,
   onVideoChange
 }) => {
-  const [loadedVideos, setLoadedVideos] = useState<Set<number>>(new Set());
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,25 +44,36 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
   }, [currentIndex, videos.length, onClose, onVideoChange]);
 
   useEffect(() => {
-    if (containerRef.current) {
+    if (containerRef.current && !isScrolling) {
       containerRef.current.scrollTo({
         top: currentIndex * window.innerHeight,
         behavior: 'smooth'
       });
     }
-  }, [currentIndex]);
-
-  const handleVideoLoad = (index: number) => {
-    setLoadedVideos(prev => new Set([...prev, index]));
-  };
+  }, [currentIndex, isScrolling]);
 
   const handleScroll = () => {
-    if (containerRef.current) {
-      const scrollTop = containerRef.current.scrollTop;
-      const newIndex = Math.round(scrollTop / window.innerHeight);
-      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < videos.length) {
-        onVideoChange(newIndex);
+    if (!containerRef.current || isScrolling) return;
+    
+    setIsScrolling(true);
+    
+    setTimeout(() => {
+      if (containerRef.current) {
+        const scrollTop = containerRef.current.scrollTop;
+        const newIndex = Math.round(scrollTop / window.innerHeight);
+        if (newIndex !== currentIndex && newIndex >= 0 && newIndex < videos.length) {
+          onVideoChange(newIndex);
+        }
       }
+      setIsScrolling(false);
+    }, 150);
+  };
+
+  const navigateVideo = (direction: 'up' | 'down') => {
+    if (direction === 'up' && currentIndex > 0) {
+      onVideoChange(currentIndex - 1);
+    } else if (direction === 'down' && currentIndex < videos.length - 1) {
+      onVideoChange(currentIndex + 1);
     }
   };
 
@@ -79,7 +90,7 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
       {/* Navigation arrows */}
       {currentIndex > 0 && (
         <button
-          onClick={() => onVideoChange(currentIndex - 1)}
+          onClick={() => navigateVideo('up')}
           className="absolute top-1/2 left-4 z-50 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors transform -translate-y-1/2"
         >
           <ArrowUp className="w-6 h-6" />
@@ -88,7 +99,7 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
       
       {currentIndex < videos.length - 1 && (
         <button
-          onClick={() => onVideoChange(currentIndex + 1)}
+          onClick={() => navigateVideo('down')}
           className="absolute top-1/2 right-4 z-50 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors transform -translate-y-1/2"
         >
           <ArrowDown className="w-6 h-6" />
@@ -114,7 +125,6 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
               autoPlay={index === currentIndex}
               loop
               className="max-w-full max-h-full object-contain"
-              onLoadedData={() => handleVideoLoad(index)}
             />
             
             {/* Video info overlay */}

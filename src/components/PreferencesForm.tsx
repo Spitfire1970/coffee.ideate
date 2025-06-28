@@ -45,10 +45,10 @@ const PreferencesForm = () => {
     setIsLoading(true);
     
     try {
-      // Replace with your actual backend endpoint
       await axios.post('/api/preferences', preferences);
       console.log('Preferences saved:', preferences);
-      // Could show a success message here
+      // Navigate to videos page after successful save
+      navigate('/videos');
     } catch (error) {
       console.error('Error saving preferences:', error);
     } finally {
@@ -57,22 +57,22 @@ const PreferencesForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900 relative overflow-hidden">
       {/* Background elements */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl"></div>
+      <div className="absolute top-20 right-10 w-72 h-72 bg-cyan-500/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl"></div>
 
       {/* Navigation arrows */}
       <button
         onClick={() => navigate('/')}
-        className="fixed left-8 top-1/2 transform -translate-y-1/2 z-20 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 p-4 rounded-full shadow-2xl hover:shadow-cyan-500/25 transition-all duration-300 hover:scale-110"
+        className="fixed left-8 top-1/2 transform -translate-y-1/2 z-20 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 p-4 rounded-full shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 hover:scale-110"
       >
         <ArrowLeft className="w-6 h-6 text-white" />
       </button>
 
       <button
         onClick={() => navigate('/videos')}
-        className="fixed right-8 top-1/2 transform -translate-y-1/2 z-20 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 p-4 rounded-full shadow-2xl hover:shadow-cyan-500/25 transition-all duration-300 hover:scale-110"
+        className="fixed right-8 top-1/2 transform -translate-y-1/2 z-20 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 p-4 rounded-full shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 hover:scale-110"
       >
         <ArrowRight className="w-6 h-6 text-white" />
       </button>
@@ -93,7 +93,7 @@ const PreferencesForm = () => {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 shadow-2xl">
+          <form onSubmit={handleSubmit} className="bg-slate-800/30 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-8 shadow-2xl">
             {/* Content Prompt */}
             <div className="mb-8">
               <label className="block text-white font-semibold mb-3 flex items-center">
@@ -103,8 +103,8 @@ const PreferencesForm = () => {
               <textarea
                 value={preferences.prompt}
                 onChange={(e) => setPreferences(prev => ({ ...prev, prompt: e.target.value }))}
-                placeholder="Describe the type of content you want to generate... (e.g., 'Latest breakthroughs in AI and machine learning research')"
-                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all h-32 resize-none"
+                placeholder="Describe the type of content you want in the generated videos... (e.g., 'Latest breakthroughs in AI and machine learning research')"
+                className="w-full bg-slate-700/50 border border-slate-500/50 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all h-32 resize-none"
                 required
               />
             </div>
@@ -118,7 +118,7 @@ const PreferencesForm = () => {
                 {preferences.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                    className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
                   >
                     {tag}
                     <button
@@ -138,12 +138,12 @@ const PreferencesForm = () => {
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                   placeholder="Add research tags (e.g., 'machine learning', 'quantum computing')"
-                  className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all"
+                  className="flex-1 bg-slate-700/50 border border-slate-500/50 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all"
                 />
                 <button
                   type="button"
                   onClick={addTag}
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                  className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -161,7 +161,7 @@ const PreferencesForm = () => {
                 max="15"
                 value={preferences.videoCount}
                 onChange={(e) => setPreferences(prev => ({ ...prev, videoCount: parseInt(e.target.value) }))}
-                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb"
+                className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer slider-thumb"
               />
               <div className="flex justify-between text-sm text-gray-400 mt-1">
                 <span>3 videos</span>
@@ -180,7 +180,7 @@ const PreferencesForm = () => {
                 max="30"
                 value={preferences.frequency}
                 onChange={(e) => setPreferences(prev => ({ ...prev, frequency: parseInt(e.target.value) }))}
-                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb"
+                className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer slider-thumb"
               />
               <div className="flex justify-between text-sm text-gray-400 mt-1">
                 <span>Daily</span>
@@ -192,7 +192,7 @@ const PreferencesForm = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 disabled:from-gray-500 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none"
             >
               {isLoading ? 'Saving...' : 'Save Preferences'}
             </button>
