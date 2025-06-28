@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, X, ArrowRight, Sparkles, Settings } from 'lucide-react';
+import { Plus, X, ArrowRight, ArrowLeft, Sparkles, Settings } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -57,15 +57,22 @@ const PreferencesForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black relative overflow-hidden">
       {/* Background elements */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+      <div className="absolute top-20 right-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl"></div>
 
-      {/* Navigation arrow to videos */}
+      {/* Navigation arrows */}
+      <button
+        onClick={() => navigate('/')}
+        className="fixed left-8 top-1/2 transform -translate-y-1/2 z-20 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 p-4 rounded-full shadow-2xl hover:shadow-cyan-500/25 transition-all duration-300 hover:scale-110"
+      >
+        <ArrowLeft className="w-6 h-6 text-white" />
+      </button>
+
       <button
         onClick={() => navigate('/videos')}
-        className="fixed right-8 top-1/2 transform -translate-y-1/2 z-20 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 p-4 rounded-full shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 hover:scale-110"
+        className="fixed right-8 top-1/2 transform -translate-y-1/2 z-20 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 p-4 rounded-full shadow-2xl hover:shadow-cyan-500/25 transition-all duration-300 hover:scale-110"
       >
         <ArrowRight className="w-6 h-6 text-white" />
       </button>
@@ -75,8 +82,8 @@ const PreferencesForm = () => {
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-6">
-              <Settings className="w-12 h-12 text-purple-400 mr-4" />
-              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <Settings className="w-12 h-12 text-cyan-400 mr-4" />
+              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
                 Preferences
               </h1>
             </div>
@@ -90,14 +97,14 @@ const PreferencesForm = () => {
             {/* Content Prompt */}
             <div className="mb-8">
               <label className="block text-white font-semibold mb-3 flex items-center">
-                <Sparkles className="w-5 h-5 mr-2 text-purple-400" />
+                <Sparkles className="w-5 h-5 mr-2 text-cyan-400" />
                 Content Prompt
               </label>
               <textarea
                 value={preferences.prompt}
                 onChange={(e) => setPreferences(prev => ({ ...prev, prompt: e.target.value }))}
                 placeholder="Describe the type of content you want to generate... (e.g., 'Latest breakthroughs in AI and machine learning research')"
-                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 outline-none transition-all h-32 resize-none"
+                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all h-32 resize-none"
                 required
               />
             </div>
@@ -111,7 +118,7 @@ const PreferencesForm = () => {
                 {preferences.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                    className="bg-gradient-to-r from-cyan-600 to-teal-600 text-white px-3 py-1 rounded-full text-sm flex items-center"
                   >
                     {tag}
                     <button
@@ -131,12 +138,12 @@ const PreferencesForm = () => {
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                   placeholder="Add research tags (e.g., 'machine learning', 'quantum computing')"
-                  className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 outline-none transition-all"
+                  className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all"
                 />
                 <button
                   type="button"
                   onClick={addTag}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -185,7 +192,7 @@ const PreferencesForm = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg disabled:cursor-not-allowed disabled:transform-none"
             >
               {isLoading ? 'Saving...' : 'Save Preferences'}
             </button>
