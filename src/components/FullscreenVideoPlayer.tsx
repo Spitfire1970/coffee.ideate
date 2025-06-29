@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { X, ArrowUp, ArrowDown, ExternalLink, Calendar } from 'lucide-react';
 
@@ -26,7 +25,21 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<number | null>(null);
+
+  // Pause all videos except the current one
+  useEffect(() => {
+    videoRefs.current.forEach((video, i) => {
+      if (video) {
+        if (i === currentIndex) {
+          video.currentTime = 0;
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      }
+    });
+  }, [currentIndex]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,29 +57,28 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
   }, [currentIndex, videos.length, onClose, onVideoChange]);
 
   useEffect(() => {
-    if (containerRef.current && !isScrolling) {
+    if (containerRef.current) {
       containerRef.current.scrollTo({
         top: currentIndex * window.innerHeight,
         behavior: 'smooth'
       });
     }
-  }, [currentIndex, isScrolling]);
+  }, [currentIndex]);
 
   const handleScroll = () => {
-    if (!containerRef.current || isScrolling) return;
-    
-    setIsScrolling(true);
-    
-    setTimeout(() => {
-      if (containerRef.current) {
-        const scrollTop = containerRef.current.scrollTop;
-        const newIndex = Math.round(scrollTop / window.innerHeight);
-        if (newIndex !== currentIndex && newIndex >= 0 && newIndex < videos.length) {
-          onVideoChange(newIndex);
-        }
+    if (!containerRef.current) return;
+
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    scrollTimeoutRef.current = window.setTimeout(() => {
+      const scrollTop = containerRef.current!.scrollTop;
+      const newIndex = Math.round(scrollTop / window.innerHeight);
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < videos.length) {
+        onVideoChange(newIndex);
       }
-      setIsScrolling(false);
-    }, 150);
+    }, 100);
   };
 
   const navigateVideo = (direction: 'up' | 'down') => {
@@ -96,7 +108,7 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
           <ArrowUp className="w-6 h-6" />
         </button>
       )}
-      
+
       {currentIndex < videos.length - 1 && (
         <button
           onClick={() => navigateVideo('down')}
@@ -111,7 +123,7 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
         ref={containerRef}
         className="h-full overflow-y-auto snap-y snap-mandatory"
         onScroll={handleScroll}
-        style={{ scrollBehavior: 'smooth' }}
+        style={{ scrollSnapType: 'y mandatory', scrollBehavior: 'smooth' }}
       >
         {videos.map((video, index) => (
           <div
@@ -122,22 +134,21 @@ const FullscreenVideoPlayer: React.FC<FullscreenVideoPlayerProps> = ({
               ref={(el) => (videoRefs.current[index] = el)}
               src={video.url}
               controls
-              autoPlay={index === currentIndex}
               loop
               className="max-w-full max-h-full object-contain"
             />
-            
+
             {/* Video info overlay */}
             <div className="absolute bottom-4 left-4 right-4 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-lg">
               <h3 className="text-white text-xl font-bold mb-2 line-clamp-2">
                 {video.title}
               </h3>
-              
+
               <div className="flex items-center text-sm text-gray-300 mb-3">
                 <Calendar className="w-4 h-4 mr-2" />
                 <span>{new Date(video.createdAt).toLocaleDateString()}</span>
               </div>
-              
+
               <div className="bg-slate-800/80 rounded-lg p-3 border border-slate-600">
                 <h4 className="text-white font-semibold mb-1 flex items-center text-sm">
                   <ExternalLink className="w-4 h-4 mr-2" />

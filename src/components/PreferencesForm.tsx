@@ -22,16 +22,34 @@ const PreferencesForm = () => {
   
   const [newTag, setNewTag] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [predefinedTags, setPredefinedTags] = useState<string[]>([
+    'machine learning',
+    'AI',
+    'blockchain',
+    'quantum computing',
+    'climate change',
+  ]);
 
-  const addTag = () => {
-    if (newTag.trim() && !preferences.tags.includes(newTag.trim())) {
-      setPreferences(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()]
-      }));
-      setNewTag('');
-    }
-  };
+
+const addCustomTag = () => {
+  const trimmedTag = newTag.trim();
+  if (!trimmedTag) return;
+
+  // Add to user-selected tags if not already present
+  if (!preferences.tags.includes(trimmedTag)) {
+    setPreferences((prev) => ({
+      ...prev,
+      tags: [...prev.tags, trimmedTag],
+    }));
+  }
+
+  // Add to predefined list if it’s not already included
+  if (!predefinedTags.includes(trimmedTag)) {
+    setPredefinedTags((prev) => [...prev, trimmedTag]);
+  }
+
+  setNewTag('');
+};
 
   const removeTag = (tagToRemove: string) => {
     setPreferences(prev => ({
@@ -110,61 +128,76 @@ const PreferencesForm = () => {
             </div>
 
             {/* Tags */}
-            <div className="mb-8">
-              <label className="block text-white font-semibold mb-3">
-                Research Tags
-              </label>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {preferences.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="ml-2 hover:bg-white/20 rounded-full p-0.5"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  placeholder="Add research tags (e.g., 'machine learning', 'quantum computing')"
-                  className="flex-1 bg-slate-700/50 border border-slate-500/50 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={addTag}
-                  className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+{/* Tags */}
+<div className="mb-8">
+  <label className="block text-white font-semibold mb-3">
+    Research Tags
+  </label>
+
+  <div className="flex flex-wrap gap-2 mb-4">
+    {predefinedTags.map((tag) => (
+      <button
+        key={tag}
+        type="button"
+        onClick={() =>
+          setPreferences((prev) => ({
+            ...prev,
+            tags: prev.tags.includes(tag)
+              ? prev.tags.filter((t) => t !== tag)
+              : [...prev.tags, tag],
+          }))
+        }
+        className={`px-3 py-1 rounded-full text-sm font-medium ${
+          preferences.tags.includes(tag)
+            ? 'bg-gradient-to-r from-cyan-500 to-teal-500 text-white'
+            : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+        }`}
+      >
+        {tag}
+      </button>
+    ))}
+  </div>
+
+  <div className="flex gap-2">
+    <input
+      type="text"
+      value={newTag}
+      onChange={(e) => setNewTag(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addCustomTag();
+        }
+      }}
+      placeholder="Add new tag (e.g., 'quantum computing')"
+      className="flex-1 bg-slate-700/50 border border-slate-500/50 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition-all"
+    />
+    <button
+      type="button"
+      onClick={addCustomTag}
+      className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+    >
+      <Plus className="w-4 h-4" />
+    </button>
+  </div>
+</div>
+
 
             {/* Video Count */}
             <div className="mb-8">
               <label className="block text-white font-semibold mb-3">
-                Videos per Generation: {preferences.videoCount}
+                Videos per generation: {preferences.videoCount}
               </label>
               <input
                 type="range"
-                min="3"
+                min="1"
                 max="15"
                 value={preferences.videoCount}
                 onChange={(e) => setPreferences(prev => ({ ...prev, videoCount: parseInt(e.target.value) }))}
                 className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer slider-thumb"
               />
               <div className="flex justify-between text-sm text-gray-400 mt-1">
-                <span>3 videos</span>
+                <span>1 video</span>
                 <span>15 videos</span>
               </div>
             </div>

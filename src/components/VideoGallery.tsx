@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw, ExternalLink, Calendar, ArrowLeft, Play } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -21,32 +20,41 @@ const VideoGallery = () => {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullscreenIndex, setFullscreenIndex] = useState(0);
+  const [thumbnails, setThumbnails] = useState<Record<string, string>>({}); // 🌟 NEW
 
-  // Mock data without author, duration, thumbnail
+
   const mockVideos: Video[] = [
     {
       id: '1',
-      title: 'Zuko Apologizes to Iroh 😢 Full Scene',
-      url: '/videos/Screen Recording 2025-06-27 at 10.52.28 PM.mov',
-      arxivLink: 'https://arxiv.org/abs/2301.12345',
-      arxivTitle: 'Quantum Advantage in Machine Learning Algorithms',
+      title: 'Mastering Da Vinci Code',
+      url: '/videos/podcast_1751124438.mp4',
+      arxivLink: 'https://arxiv.org/abs/2506.12801',
+      arxivTitle: 'Mastering Da Vinci Code: A Comparative Study of Transformer, LLM, and PPO-based Agents',
       createdAt: '2024-01-15'
     },
     {
       id: '2',
-      title: 'Latest Advances in Neural Network Architecture',
-      url: '/videos/Zuko Apologizes to Iroh 😢 Full Scene _ Avatar - The Last Airbender-phlrJpgKYyw.mp4',
-      arxivLink: 'https://arxiv.org/abs/2301.67890',
-      arxivTitle: 'Transformer Models for Scientific Discovery',
-      createdAt: '2024-01-14'
+      title: "LLM Driven Swarm Agents",
+      url: 'videos/AI_Gadget_kit.mp4',
+      arxivLink: 'https://arxiv.org/abs/2407.17086',
+      arxivTitle: 'AI-Gadget Kit: Integrating Swarm User Interfaces with LLM-driven Agents for Rich Tabletop Game Applications',
+      createdAt: '2024-01-13'
     },
     {
       id: '3',
-      title: 'Breakthrough in Sustainable Energy Research',
-      url: 'videos/Screen Recording 2025-03-03 at 3.16.46 PM.mov',
-      arxivLink: '/Users/spitfire/mac_screenshots:screen_recordings/Screen Recording 2023-02-15 at 10.48.28 PM.mov',
-      arxivTitle: 'Novel Photovoltaic Materials for Enhanced Efficiency',
+      title: "LLM's behavior toward Mystery Games",
+      url: 'videos/c6eb783d897842efa7adb1acae8edd8e.mp4',
+      arxivLink: 'https://arxiv.org/html/2312.00746v2',
+      arxivTitle: 'Deciphering Digital Detectives: Understanding LLM Behaviors and Capabilities in Multi-Agent Mystery Games',
       createdAt: '2024-01-13'
+    },
+    {
+      id: '4',
+      title: 'AI Agent and Game Theory',
+      url: '/videos/podcast_1751126336.mp4',
+      arxivLink: 'https://arxiv.org/pdf/2504.14325',
+      arxivTitle: 'FAIRGAME: a Framework for AI Agents Bias Recognition using Game Theory',
+      createdAt: '2024-01-14'
     }
   ];
 
@@ -73,6 +81,48 @@ const VideoGallery = () => {
       setSelectedVideo(mockVideos[0]);
       setIsLoading(false);
     }
+  };
+
+    useEffect(() => {
+    const generateThumbnails = async () => {
+      for (const video of mockVideos) {
+        if (!thumbnails[video.id]) {
+          const thumbnail = await extractFirstFrame(video.url);
+          setThumbnails(prev => ({ ...prev, [video.id]: thumbnail }));
+        }
+      }
+    };
+    generateThumbnails();
+  }, [videos]);
+
+    const extractFirstFrame = (videoUrl: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.src = videoUrl;
+      video.crossOrigin = 'anonymous'; // May be needed for cross-origin videos
+      video.muted = true;
+      video.playsInline = true;
+      video.currentTime = 0;
+
+      const canvas = document.createElement('canvas');
+
+      video.addEventListener('loadeddata', () => {
+        video.currentTime = 0.1; // Slight offset ensures frame is available
+      });
+
+      video.addEventListener('seeked', () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const dataURL = canvas.toDataURL('image/png');
+          resolve(dataURL);
+        } else {
+          resolve('');
+        }
+      });
+    });
   };
 
   const handleVideoClick = (video: Video, index: number) => {
@@ -126,19 +176,29 @@ const VideoGallery = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Video Player */}
+            {/* Player Section */}
             <div className="lg:col-span-2">
               {selectedVideo && (
                 <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
-                  <div className="aspect-video bg-slate-800 flex items-center justify-center relative group cursor-pointer"
-                       onClick={() => handleVideoClick(selectedVideo, videos.indexOf(selectedVideo))}>
-                    {/* Video placeholder with play button */}
-                    <div className="text-center">
-                      <div className="w-24 h-24 bg-gradient-to-r from-cyan-600 to-teal-600 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform">
-                        <Play className="w-8 h-8 text-white ml-1" />
+                  <div
+                    className="aspect-video bg-slate-800 flex items-center justify-center relative group cursor-pointer"
+                    onClick={() => handleVideoClick(selectedVideo, videos.indexOf(selectedVideo))}
+                  >
+                    {/* Thumbnail display in main view */}
+                    {thumbnails[selectedVideo.id] ? (
+                      <img
+                        src={thumbnails[selectedVideo.id]}
+                        alt="Video thumbnail"
+                        className="absolute inset-0 object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <div className="w-24 h-24 bg-gradient-to-r from-cyan-600 to-teal-600 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform">
+                          <Play className="w-8 h-8 text-white ml-1" />
+                        </div>
+                        <p className="text-gray-400">Click to play in fullscreen</p>
                       </div>
-                      <p className="text-gray-400">Click to play in fullscreen</p>
-                    </div>
+                    )}
                   </div>
                   
                   <div className="p-6">
@@ -187,10 +247,17 @@ const VideoGallery = () => {
                   }`}
                 >
                   <div className="aspect-video bg-slate-800 overflow-hidden flex items-center justify-center relative">
-                    {/* Video thumbnail placeholder */}
-                    <div className="w-12 h-12 bg-gradient-to-r from-cyan-600 to-teal-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Play className="w-4 h-4 text-white ml-0.5" />
-                    </div>
+                    {thumbnails[video.id] ? (
+                      <img
+                        src={thumbnails[video.id]}
+                        alt="Thumbnail"
+                        className="absolute inset-0 object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gradient-to-r from-cyan-600 to-teal-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform z-10">
+                        <Play className="w-4 h-4 text-white ml-0.5" />
+                      </div>
+                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -214,7 +281,7 @@ const VideoGallery = () => {
         )}
       </div>
 
-      {/* Fullscreen Video Player */}
+      {/* Fullscreen player component */}
       {isFullscreen && (
         <FullscreenVideoPlayer
           videos={videos}

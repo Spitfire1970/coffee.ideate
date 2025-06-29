@@ -30,27 +30,32 @@ const HeroSection = () => {
           <h1 className="text-6xl md:text-8xl font-black bg-gradient-to-r from-cyan-300 via-teal-300 to-blue-300 bg-clip-text text-transparent mb-4">
             coffee.ideate
           </h1>
-          <p className="text-xl md:text-2xl text-gray-300 font-light tracking-wide">
+          <p className="text-xl md:text-3xl text-gray-300 font-light tracking-wide">
             See your ideas come to life... before you even have ideas.
           </p>
         </div>
 
         {/* Main content */}
         <div className="max-w-4xl mx-auto mb-16">
+          <br/>
+          <br/>
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-8 leading-tight">
             Transform
             <span className="bg-gradient-to-r from-cyan-300 to-teal-300 bg-clip-text text-transparent"> research </span>
-            into engaging content
+            into engaging videos
           </h2>
-          <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
-            Automated system that curates the latest academic papers and transforms them into 
-            engaging, short-form video scripts. Daily research reels delivered to your feed.
+          <div className="text-6xl mb-8 text-white">📄&nbsp;→&nbsp;🎥&nbsp;→&nbsp;☕💆</div>
+          <br/>
+          <br/>
+          <p className="text-lg md:text-2xl text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
+            Our automated system curates the latest academic papers and transforms them into 
+            engaging, short-form videos. Daily research reels delivered to your feed.
           </p>
-          <div className="text-6xl mb-8">📄&nbsp;➡️&nbsp;🎥</div>
-          <p className="text-md text-gray-400 leading-relaxed max-w-2xl mx-auto">
+          
+          {/* <p className="text-md text-gray-400 leading-relaxed max-w-2xl mx-auto">
             Turn dense academic writing into snackable, high-quality video content. 
             Stay ahead of trends, discover fresh research ideas, and create science content faster than ever.
-          </p>
+          </p> */}
         </div>
 
         {/* CTA Section */}
